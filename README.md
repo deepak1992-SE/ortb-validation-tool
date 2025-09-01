@@ -42,7 +42,7 @@ A comprehensive **OpenRTB 2.6** validation and sample generation tool with a mod
 
 ### 1. **Clone & Install**
 ```bash
-git clone https://github.com/yourusername/ortb-validation-tool.git
+git clone https://github.com/deepak1992-SE/ortb-validation-tool.git
 cd ortb-validation-tool
 npm install
 ```
@@ -296,9 +296,9 @@ We welcome contributions! Here's how to get started:
 
 ## 🐛 Issues & Support
 
-- 🐛 **Bug Reports**: [Create an issue](https://github.com/yourusername/ortb-validation-tool/issues)
-- 💡 **Feature Requests**: [Request a feature](https://github.com/yourusername/ortb-validation-tool/issues)
-- 💬 **Questions**: [Start a discussion](https://github.com/yourusername/ortb-validation-tool/discussions)
+- 🐛 **Bug Reports**: [Create an issue](https://github.com/deepak1992-SE/ortb-validation-tool/issues)
+- 💡 **Feature Requests**: [Request a feature](https://github.com/deepak1992-SE/ortb-validation-tool/issues)
+- 💬 **Questions**: [Start a discussion](https://github.com/deepak1992-SE/ortb-validation-tool/discussions)
 
 ## 📄 License
 
@@ -319,6 +319,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 Made with ❤️ for the programmatic advertising community
 
-[🚀 Get Started](QUICK-START.md) • [📖 Documentation](API.md) • [🐛 Report Bug](https://github.com/yourusername/ortb-validation-tool/issues) • [💡 Request Feature](https://github.com/yourusername/ortb-validation-tool/issues)
+[🚀 Get Started](QUICK-START.md) • [📖 Documentation](API.md) • [🐛 Report Bug](https://github.com/deepak1992-SE/ortb-validation-tool/issues) • [💡 Request Feature](https://github.com/deepak1992-SE/ortb-validation-tool/issues)
 
 </div>
