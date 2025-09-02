@@ -41,7 +41,7 @@ app.get('/api/health', (req, res) => {
     status: 'live',
     version: '1.0.0',
     uptime: process.uptime(),
-    message: 'ORTB Validation Tool is LIVE on Render!',
+    message: 'ORTB Validation Tool is LIVE on Render! (Updated)',
     timestamp: new Date().toISOString()
   });
 });
