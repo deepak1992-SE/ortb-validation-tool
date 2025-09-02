@@ -10,6 +10,8 @@
   "scripts": {
     "start": "node minimal-server.js",
     "build": "node build.js",
+    "heroku-postbuild": "node build.js",
+    "postinstall": "node build.js",
     "build:backend": "tsc",
     "build:full": "npm run frontend:install && npm run frontend:build && tsc",
     "build:watch": "tsc --watch",
