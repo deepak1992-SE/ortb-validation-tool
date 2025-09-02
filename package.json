@@ -8,7 +8,7 @@
     "node": "18.x"
   },
   "scripts": {
-    "start": "node simple-server.js",
+    "start": "node minimal-server.js",
     "build": "node build.js",
     "build:backend": "tsc",
     "build:full": "npm run frontend:install && npm run frontend:build && tsc",
