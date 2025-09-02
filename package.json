@@ -2,7 +2,7 @@
   "name": "ortb-validation-tool",
   "version": "1.0.0",
   "description": "OpenRTB 2.6 validation and sample generation tool",
-  "main": "mock-api-server.js",
+  "main": "server.js",
   "types": "dist/index.d.ts",
   "engines": {
     "node": "18.x"
