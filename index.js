@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 </head>
 <body>
     <div class="container">
-        <h1>🎉 ORTB Validation Tool</h1>
+        <h1>🎉 ORTB Validation Tool - LIVE NOW!</h1>
         <div class="success">✅ SUCCESS! The root route is now working!</div>
         
         <p><strong>Your OpenRTB 2.6 validation tool is live and working!</strong></p>
