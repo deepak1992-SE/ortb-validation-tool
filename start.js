@@ -1,3 +1,3 @@
-// Production server entry point - just use server.js directly
-console.log('🚀 Starting ORTB Validation Tool...');
-require('./server.js');
+// Production server entry point - use simple server to avoid path-to-regexp issues
+console.log('🚀 Starting ORTB Validation Tool with simple server...');
+require('./simple-server.js');
