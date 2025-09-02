@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -263,8 +263,8 @@ app.get('/api/analytics', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Mock ORTB API Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 ORTB API Server running on port ${PORT}`);
   console.log(`📋 Available endpoints:`);
   console.log(`   GET  /api/health`);
   console.log(`   POST /api/validate`);
@@ -272,5 +272,5 @@ app.listen(PORT, () => {
   console.log(`   GET  /api/templates`);
   console.log(`   POST /api/generate/from-template`);
   console.log(`   GET  /api/analytics`);
-  console.log(`\n✅ Frontend can now connect to this API server!`);
+  console.log(`\n✅ Server ready for production!`);
 });
