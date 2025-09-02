@@ -6,7 +6,7 @@ import {
   Download, 
   Copy, 
   Shuffle, 
-  Settings,
+  // Settings,
   Monitor,
   Video,
   Smartphone,

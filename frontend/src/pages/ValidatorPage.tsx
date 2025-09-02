@@ -4,8 +4,8 @@ import { toast } from 'react-hot-toast'
 import { 
   CheckCircle, 
   XCircle, 
-  AlertTriangle, 
-  Upload, 
+  // AlertTriangle, 
+  // Upload, 
   Download,
   Copy,
   FileText,
