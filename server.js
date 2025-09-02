@@ -33,7 +33,10 @@ const mockSample = {
 
 // Serve static files if frontend/dist exists
 const frontendPath = path.join(__dirname, 'frontend', 'dist');
-app.use(express.static(frontendPath));
+const fs = require('fs');
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+}
 
 // API Routes
 app.get('/api/health', (req, res) => {
@@ -258,14 +261,14 @@ curl -X POST ${req.protocol}://${req.get('host')}/api/validate \\<br>
   `);
 });
 
-// Catch all handler for frontend routes (if frontend is built)
-app.get('*', (req, res) => {
+// Catch all handler for frontend routes (only for non-API, non-root routes)
+app.get('/app/*', (req, res) => {
   const indexPath = path.join(frontendPath, 'index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      res.status(404).send('Frontend not found. API is available at /api/*');
-    }
-  });
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send('Frontend not found. API is available at /api/*');
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
