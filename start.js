@@ -1,3 +1,3 @@
-// Production server entry point
-// Use the comprehensive server.js for full functionality
+// Production server entry point - just use server.js directly
+console.log('🚀 Starting ORTB Validation Tool...');
 require('./server.js');
