@@ -240,9 +240,9 @@ export function DocumentationPage() {
                         <p className="text-gray-600 mb-4">
                           {item.content}
                         </p>
-                        {item.list && (
+                        {(item as any).list && (
                           <ul className="space-y-2">
-                            {item.list.map((listItem, listIndex) => (
+                            {(item as any).list.map((listItem: string, listIndex: number) => (
                               <li key={listIndex} className="flex items-start space-x-2">
                                 <ChevronRight className="w-4 h-4 text-primary-600 mt-0.5 flex-shrink-0" />
                                 <span className="text-gray-600">{listItem}</span>

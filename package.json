@@ -9,7 +9,8 @@
   },
   "scripts": {
     "start": "node start.js",
-    "build": "tsc",
+    "build": "npm run frontend:install && npm run frontend:build && tsc",
+    "build:backend": "tsc",
     "build:watch": "tsc --watch",
     "dev": "ts-node src/index.ts",
     "api": "ts-node src/api/cli.ts",
@@ -27,6 +28,7 @@
     "frontend:install": "cd frontend && npm install",
     "frontend:dev": "cd frontend && npm run dev",
     "frontend:build": "cd frontend && npm run build",
+    "postinstall": "npm run frontend:install && npm run frontend:build",
     "dev:full": "concurrently \"npm run api\" \"npm run frontend:dev\"",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",

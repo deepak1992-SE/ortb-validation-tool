@@ -1,0 +1,27 @@
+services:
+  # Backend API Service
+  - type: web
+    name: ortb-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /api/health
+
+  # Frontend Static Site
+  - type: web
+    name: ortb-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: ortb-api
+          property: host
+        sync: false

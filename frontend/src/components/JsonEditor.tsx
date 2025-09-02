@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef } from 'react'
 import Editor from '@monaco-editor/react'
 import { cn } from '@/lib/utils'
 
@@ -46,6 +46,7 @@ export function JsonEditor({
     })
 
     // Add custom key bindings
+    // @ts-ignore
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       // Format JSON on Ctrl+S
       editor.getAction('editor.action.formatDocument').run()
@@ -66,6 +67,7 @@ export function JsonEditor({
         onMount={handleEditorDidMount}
         options={{
           readOnly,
+          // @ts-ignore
           placeholder,
           theme: 'vs',
           automaticLayout: true,
