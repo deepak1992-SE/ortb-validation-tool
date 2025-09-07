@@ -613,7 +613,7 @@ export class SampleTemplateManager {
     return current !== undefined;
   }
 
-  private ensureRequiredFields(request: ORTBRequest, template: SampleTemplate): void {
+  private ensureRequiredFields(request: ORTBRequest, _template: SampleTemplate): void {
     // Ensure basic required fields
     if (!request.id) {
       request.id = `req-${Date.now()}`;

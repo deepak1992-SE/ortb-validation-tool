@@ -324,7 +324,7 @@ export class DefaultSampleService implements SampleService {
           publisher: {
             id: 'pub-123',
             name: config.publisherInfo.name || 'Sample Publisher',
-            ...(config.publisherInfo.domain && { domain: config.publisherInfo.domain })
+            domain: config.publisherInfo.domain || 'example.com'
           }
         };
       } else {
@@ -337,7 +337,7 @@ export class DefaultSampleService implements SampleService {
           publisher: {
             id: 'pub-123',
             name: config.publisherInfo.name || 'Sample Publisher',
-            ...(config.publisherInfo.domain && { domain: config.publisherInfo.domain })
+            domain: config.publisherInfo.domain || 'example.com'
           }
         };
       }
@@ -361,25 +361,25 @@ export class DefaultSampleService implements SampleService {
 
       // Add geo information if provided
       if (config.geoInfo) {
-        request.device.geo = {
-          ...(config.geoInfo.country && { country: config.geoInfo.country }),
-          ...(config.geoInfo.region && { region: config.geoInfo.region }),
-          ...(config.geoInfo.city && { city: config.geoInfo.city }),
-          ...(config.geoInfo.coordinates?.lat != null && { lat: config.geoInfo.coordinates.lat }),
-          ...(config.geoInfo.coordinates?.lon != null && { lon: config.geoInfo.coordinates.lon }),
-          type: 1
-        };
+        const geo: any = { type: 1 };
+        if (config.geoInfo.country) geo.country = config.geoInfo.country;
+        if (config.geoInfo.region) geo.region = config.geoInfo.region;
+        if (config.geoInfo.city) geo.city = config.geoInfo.city;
+        if (config.geoInfo.coordinates?.lat != null) geo.lat = config.geoInfo.coordinates.lat;
+        if (config.geoInfo.coordinates?.lon != null) geo.lon = config.geoInfo.coordinates.lon;
+        request.device.geo = geo;
       }
     }
 
     // Add user information
     if (config.userInfo) {
-      request.user = {
+      const user: any = {
         id: 'user-123',
-        yob: this.getYearOfBirth(config.userInfo.ageRange),
-        ...(config.userInfo.gender && { gender: config.userInfo.gender }),
-        ...(config.userInfo.interests && { keywords: config.userInfo.interests.join(',') })
+        yob: this.getYearOfBirth(config.userInfo.ageRange)
       };
+      if (config.userInfo.gender) user.gender = config.userInfo.gender;
+      if (config.userInfo.interests) user.keywords = config.userInfo.interests.join(',');
+      request.user = user;
     }
 
     // Add blocked categories and advertisers for comprehensive samples
@@ -401,7 +401,7 @@ export class DefaultSampleService implements SampleService {
     };
 
     const key = `${browser || 'Chrome'}-${os || 'Windows'}`;
-    return userAgents[key] || userAgents['Chrome-Windows'];
+    return userAgents[key] || userAgents['Chrome-Windows'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
   }
 
   private mapDeviceType(deviceType?: string): number {
@@ -458,10 +458,11 @@ export class DefaultSampleService implements SampleService {
 
     for (let i = 0; i < keys.length - 1; i++) {
       const key = keys[i];
+      if (!key) continue;
       
       // Handle array indices like "imp.0" or "cur.0"
       if (/^\d+$/.test(key)) {
-        const index = parseInt(key);
+        const index = parseInt(key, 10);
         if (!Array.isArray(current)) {
           // If current is not an array but we're trying to access by index, skip
           return;
@@ -485,10 +486,11 @@ export class DefaultSampleService implements SampleService {
     }
 
     const finalKey = keys[keys.length - 1];
+    if (!finalKey) return;
     
     // Handle array indices in final key
     if (/^\d+$/.test(finalKey)) {
-      const index = parseInt(finalKey);
+      const index = parseInt(finalKey, 10);
       if (Array.isArray(current)) {
         current[index] = value;
       }
@@ -596,7 +598,9 @@ export class DefaultSampleService implements SampleService {
     // Apply variations based on configuration
     if (batchConfig.variations.varyRequestTypes) {
       const types: Array<'display' | 'video' | 'native' | 'audio'> = ['display', 'video', 'native', 'audio'];
-      variedConfig.requestType = types[index % types.length];
+      variedConfig.requestType = types[index % types.length] || 'display';
+    } else if (!variedConfig.requestType) {
+      variedConfig.requestType = 'display'; // Set default if not defined
     }
 
     return variedConfig;

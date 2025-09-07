@@ -3,7 +3,7 @@
  * Manages sample generation configurations and scenarios
  */
 
-import { SampleConfig, AdType, SampleComplexity } from '../models/sample';
+import { SampleConfig } from '../models/sample';
 
 export interface SampleScenario {
   id: string;
@@ -137,7 +137,7 @@ export class SampleConfigManager {
     const variationKeys = Object.keys(testVariations);
     const combinations = this.generateCombinations(testVariations);
 
-    combinations.forEach((combination, index) => {
+    combinations.forEach((combination) => {
       const config = { ...baseConfig };
       const customFields = { ...config.customFields };
 
@@ -434,7 +434,7 @@ export class SampleConfigManager {
         return;
       }
       
-      for (const value of values[index]) {
+      for (const value of values[index] || []) {
         current[index] = value;
         generate(current, index + 1);
       }
