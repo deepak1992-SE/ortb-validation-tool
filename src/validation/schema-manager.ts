@@ -662,35 +662,132 @@ export class SchemaManager {
     const errors: SchemaValidationError[] = [];
     const validatedPaths: string[] = [];
 
-    // Basic type checking
-    if (schema.type && typeof request !== schema.type) {
-      errors.push({
-        path: 'root',
-        message: `Expected type ${schema.type}, got ${typeof request}`,
-        rule: 'type-validation',
-        expected: schema.type,
-        actual: typeof request
-      });
-    } else {
-      validatedPaths.push('root');
-    }
-
-    // Required fields validation - only if request is an object
-    if (typeof request === 'object' && request !== null && schema.required && Array.isArray(schema.required)) {
-      schema.required.forEach((requiredField: string) => {
-        if (!(requiredField in request)) {
+    // Recursive validation function
+    const validateRecursive = (data: any, schemaDefinition: any, path: string = 'root') => {
+      // Type validation
+      if (schemaDefinition.type) {
+        if (schemaDefinition.type === 'array' && !Array.isArray(data)) {
           errors.push({
-            path: requiredField,
-            message: `Required field '${requiredField}' is missing`,
-            rule: 'required-field',
-            expected: 'field to be present',
-            actual: 'field missing'
+            path,
+            message: `Expected array, got ${typeof data}`,
+            rule: 'type-validation',
+            expected: 'array',
+            actual: typeof data
           });
-        } else {
-          validatedPaths.push(requiredField);
+          return;
+        } else if (schemaDefinition.type === 'object' && (typeof data !== 'object' || data === null || Array.isArray(data))) {
+          errors.push({
+            path,
+            message: `Expected object, got ${Array.isArray(data) ? 'array' : typeof data}`,
+            rule: 'type-validation',
+            expected: 'object',
+            actual: Array.isArray(data) ? 'array' : typeof data
+          });
+          return;
+        } else if (schemaDefinition.type === 'string' && typeof data !== 'string') {
+          errors.push({
+            path,
+            message: `Expected string, got ${typeof data}`,
+            rule: 'type-validation',
+            expected: 'string',
+            actual: typeof data
+          });
+          return;
+        } else if (schemaDefinition.type === 'number' && (typeof data !== 'number' || isNaN(data))) {
+          errors.push({
+            path,
+            message: `Expected number, got ${typeof data}`,
+            rule: 'type-validation',
+            expected: 'number',
+            actual: typeof data
+          });
+          return;
+        } else if (schemaDefinition.type === 'integer' && (!Number.isInteger(data))) {
+          errors.push({
+            path,
+            message: `Expected integer, got ${typeof data}`,
+            rule: 'type-validation',
+            expected: 'integer',
+            actual: typeof data
+          });
+          return;
         }
-      });
-    }
+      }
+
+      validatedPaths.push(path);
+
+      // Validate array items
+      if (schemaDefinition.type === 'array' && Array.isArray(data)) {
+        if (schemaDefinition.minItems && data.length < schemaDefinition.minItems) {
+          errors.push({
+            path,
+            message: `Array must have at least ${schemaDefinition.minItems} items, got ${data.length}`,
+            rule: 'minItems',
+            expected: `>= ${schemaDefinition.minItems} items`,
+            actual: `${data.length} items`
+          });
+        }
+
+        if (schemaDefinition.items) {
+          data.forEach((item: any, index: number) => {
+            validateRecursive(item, schemaDefinition.items, `${path}[${index}]`);
+          });
+        }
+      }
+
+      // Validate object properties
+      if (schemaDefinition.type === 'object' && typeof data === 'object' && data !== null) {
+        // Check required fields
+        if (schemaDefinition.required && Array.isArray(schemaDefinition.required)) {
+          schemaDefinition.required.forEach((requiredField: string) => {
+            if (!(requiredField in data)) {
+              errors.push({
+                path: path === 'root' ? requiredField : `${path}.${requiredField}`,
+                message: `Required field '${requiredField}' is missing`,
+                rule: 'required-field',
+                expected: 'field to be present',
+                actual: 'field missing'
+              });
+            }
+          });
+        }
+
+        // Validate properties
+        if (schemaDefinition.properties) {
+          Object.entries(schemaDefinition.properties).forEach(([prop, propSchema]: [string, any]) => {
+            if (prop in data) {
+              const propPath = path === 'root' ? prop : `${path}.${prop}`;
+              validateRecursive(data[prop], propSchema, propPath);
+            }
+          });
+        }
+      }
+
+      // Number range validation
+      if ((schemaDefinition.type === 'number' || schemaDefinition.type === 'integer') && typeof data === 'number') {
+        if (schemaDefinition.minimum !== undefined && data < schemaDefinition.minimum) {
+          errors.push({
+            path,
+            message: `Value ${data} is less than minimum ${schemaDefinition.minimum}`,
+            rule: 'minimum',
+            expected: `>= ${schemaDefinition.minimum}`,
+            actual: data
+          });
+        }
+        if (schemaDefinition.maximum !== undefined && data > schemaDefinition.maximum) {
+          errors.push({
+            path,
+            message: `Value ${data} is greater than maximum ${schemaDefinition.maximum}`,
+            rule: 'maximum',
+            expected: `<= ${schemaDefinition.maximum}`,
+            actual: data
+          });
+        }
+      }
+    };
+
+    // Start recursive validation
+    validateRecursive(request, schema);
 
     return { errors, validatedPaths };
   }
@@ -784,7 +881,7 @@ export class SchemaManager {
   private getOpenRTB26Schema(): any {
     return {
       type: 'object',
-      required: ['id', 'imp'],
+      required: ['id', 'imp', 'at'],
       properties: {
         id: {
           type: 'string',

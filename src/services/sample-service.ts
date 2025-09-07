@@ -318,13 +318,13 @@ export class DefaultSampleService implements SampleService {
           id: 'app-123',
           name: config.publisherInfo.siteName || 'Sample App',
           bundle: config.publisherInfo.bundleId || 'com.example.app',
-          domain: config.publisherInfo.domain,
-          storeurl: config.publisherInfo.storeUrl,
+          ...(config.publisherInfo.domain && { domain: config.publisherInfo.domain }),
+          ...(config.publisherInfo.storeUrl && { storeurl: config.publisherInfo.storeUrl }),
           cat: config.publisherInfo.categories || ['IAB1'],
           publisher: {
             id: 'pub-123',
             name: config.publisherInfo.name || 'Sample Publisher',
-            domain: config.publisherInfo.domain
+            ...(config.publisherInfo.domain && { domain: config.publisherInfo.domain })
           }
         };
       } else {
@@ -337,7 +337,7 @@ export class DefaultSampleService implements SampleService {
           publisher: {
             id: 'pub-123',
             name: config.publisherInfo.name || 'Sample Publisher',
-            domain: config.publisherInfo.domain
+            ...(config.publisherInfo.domain && { domain: config.publisherInfo.domain })
           }
         };
       }
@@ -362,11 +362,11 @@ export class DefaultSampleService implements SampleService {
       // Add geo information if provided
       if (config.geoInfo) {
         request.device.geo = {
-          country: config.geoInfo.country,
-          region: config.geoInfo.region,
-          city: config.geoInfo.city,
-          lat: config.geoInfo.coordinates?.lat,
-          lon: config.geoInfo.coordinates?.lon,
+          ...(config.geoInfo.country && { country: config.geoInfo.country }),
+          ...(config.geoInfo.region && { region: config.geoInfo.region }),
+          ...(config.geoInfo.city && { city: config.geoInfo.city }),
+          ...(config.geoInfo.coordinates?.lat != null && { lat: config.geoInfo.coordinates.lat }),
+          ...(config.geoInfo.coordinates?.lon != null && { lon: config.geoInfo.coordinates.lon }),
           type: 1
         };
       }
@@ -377,8 +377,8 @@ export class DefaultSampleService implements SampleService {
       request.user = {
         id: 'user-123',
         yob: this.getYearOfBirth(config.userInfo.ageRange),
-        gender: config.userInfo.gender,
-        keywords: config.userInfo.interests?.join(',')
+        ...(config.userInfo.gender && { gender: config.userInfo.gender }),
+        ...(config.userInfo.interests && { keywords: config.userInfo.interests.join(',') })
       };
     }
 
