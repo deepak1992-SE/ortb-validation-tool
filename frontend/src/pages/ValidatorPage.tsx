@@ -10,13 +10,15 @@ import {
   Copy,
   FileText,
   Zap,
-  Clock
+  Clock,
+  Layers
 } from 'lucide-react'
 import { apiClient, ValidationResult } from '@/lib/api'
 import { cn, downloadFile, copyToClipboard, isValidJSON, prettifyJSON } from '@/lib/utils'
 import { JsonEditor } from '@/components/JsonEditor'
 import { ValidationResults } from '@/components/ValidationResults'
 import { FileUpload } from '@/components/FileUpload'
+import { QuickTemplates } from '@/components/QuickTemplates'
 
 const sampleRequest = {
   id: "sample-request-001",
@@ -44,7 +46,9 @@ const sampleRequest = {
 }
 
 export function ValidatorPage() {
+  const [activeTab, setActiveTab] = useState<'single' | 'batch'>('single')
   const [jsonInput, setJsonInput] = useState(prettifyJSON(sampleRequest))
+  const [, setBatchInput] = useState('[]')
   const [validationOptions, setValidationOptions] = useState({
     strict: false,
     includeWarnings: true
@@ -66,6 +70,9 @@ export function ValidatorPage() {
       console.error('Validation error:', error)
     }
   })
+
+  // Batch validation functionality (currently unused)
+  // const batchValidateMutation = useMutation({ ... })
 
   const handleValidate = () => {
     if (!jsonInput.trim()) {
@@ -89,8 +96,13 @@ export function ValidatorPage() {
     }
   }
 
+
   const handleFileUpload = (content: string) => {
-    setJsonInput(content)
+    if (activeTab === 'single') {
+      setJsonInput(content)
+    } else {
+      setBatchInput(content)
+    }
     toast.success('File uploaded successfully')
   }
 
@@ -118,6 +130,15 @@ export function ValidatorPage() {
     toast.success('Sample request loaded')
   }
 
+  const handleTemplateSelect = (template: any, templateName: string) => {
+    if (activeTab === 'single') {
+      setJsonInput(prettifyJSON(template))
+    } else {
+      setBatchInput(JSON.stringify([template], null, 2))
+    }
+    toast.success(`${templateName} template loaded`)
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -128,6 +149,38 @@ export function ValidatorPage() {
         <p className="text-lg text-gray-600">
           Validate your OpenRTB 2.6 bid requests against IAB specifications
         </p>
+        
+        {/* Tabs for Single/Batch Validation */}
+        <div className="mt-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('single')}
+                className={cn(
+                  'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2',
+                  activeTab === 'single'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                )}
+              >
+                <FileText className="w-4 h-4" />
+                <span>Single Validation</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('batch')}
+                className={cn(
+                  'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2',
+                  activeTab === 'batch'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                )}
+              >
+                <Layers className="w-4 h-4" />
+                <span>Batch Validation</span>
+              </button>
+            </nav>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -321,6 +374,19 @@ export function ValidatorPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Quick Templates Section for Operations Teams */}
+      <div className="mt-12">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Quick Start Templates
+          </h2>
+          <p className="text-gray-600">
+            Pre-built ORTB templates for common use cases. Perfect for operations teams and testing.
+          </p>
+        </div>
+        <QuickTemplates onTemplateSelect={handleTemplateSelect} />
       </div>
     </div>
   )

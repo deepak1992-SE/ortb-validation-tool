@@ -10,6 +10,7 @@ import {
   Download,
   Users
 } from 'lucide-react'
+import { StatusMonitor } from '@/components/StatusMonitor'
 
 const features = [
   {
@@ -122,8 +123,24 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* System Status Section - For Operations Teams */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              System Status & Operations
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Real-time monitoring dashboard for operations teams. Track system health, 
+              performance metrics, and service availability.
+            </p>
+          </div>
+          <StatusMonitor />
+        </div>
+      </section>
+
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">

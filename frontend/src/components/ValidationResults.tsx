@@ -6,10 +6,18 @@ import {
   ChevronDown, 
   ChevronRight,
   Lightbulb,
-  ExternalLink
+  ExternalLink,
+  CheckCircle,
+  Copy,
+  Download,
+  BookOpen,
+  Clock,
+  Target,
+  AlertCircle
 } from 'lucide-react'
 import { ValidationResult } from '@/lib/api'
-import { cn } from '@/lib/utils'
+import { cn, copyToClipboard, downloadFile } from '@/lib/utils'
+import { toast } from 'react-hot-toast'
 
 interface ValidationResultsProps {
   result: ValidationResult
@@ -18,6 +26,34 @@ interface ValidationResultsProps {
 export function ValidationResults({ result }: ValidationResultsProps) {
   const [expandedErrors, setExpandedErrors] = useState<Set<number>>(new Set())
   const [expandedWarnings, setExpandedWarnings] = useState<Set<number>>(new Set())
+  
+  const handleCopyResult = async () => {
+    try {
+      await copyToClipboard(JSON.stringify(result, null, 2))
+      toast.success('Validation result copied to clipboard')
+    } catch (error) {
+      toast.error('Failed to copy result')
+    }
+  }
+
+  const handleDownloadResult = () => {
+    try {
+      const timestamp = new Date().toISOString().split('T')[0]
+      const filename = `ortb-validation-${timestamp}-${result.requestId?.slice(-8) || 'result'}.json`
+      downloadFile(JSON.stringify(result, null, 2), filename, 'application/json')
+      toast.success('Validation result downloaded')
+    } catch (error) {
+      toast.error('Failed to download result')
+    }
+  }
+
+  const getComplianceBadge = () => {
+    const score = result.complianceScore || 0
+    if (score >= 90) return { color: 'bg-green-100 text-green-800 border-green-200', label: 'Excellent' }
+    if (score >= 75) return { color: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Good' }
+    if (score >= 50) return { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', label: 'Fair' }
+    return { color: 'bg-red-100 text-red-800 border-red-200', label: 'Poor' }
+  }
 
   const toggleErrorExpansion = (index: number) => {
     const newExpanded = new Set(expandedErrors)
@@ -61,8 +97,115 @@ export function ValidationResults({ result }: ValidationResultsProps) {
     }
   }
 
+  const badge = getComplianceBadge()
+
   return (
     <div className="space-y-6">
+      {/* Validation Summary Card - New for Operations Teams */}
+      <div className="card p-6 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            {result.isValid ? (
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+            ) : (
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+            )}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                {result.isValid ? 'Valid ORTB Request' : 'Invalid ORTB Request'}
+              </h2>
+              <p className="text-gray-600">
+                {result.isValid 
+                  ? 'Your request meets OpenRTB 2.6 standards'
+                  : `${result.errors.length} error${result.errors.length !== 1 ? 's' : ''} found`
+                }
+              </p>
+            </div>
+          </div>
+          
+          {/* Action Buttons for Operations */}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleCopyResult}
+              className="flex items-center space-x-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              title="Copy validation result"
+            >
+              <Copy className="w-4 h-4" />
+              <span className="hidden sm:inline">Copy</span>
+            </button>
+            <button
+              onClick={handleDownloadResult}
+              className="flex items-center space-x-2 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              title="Download validation result"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Download</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Metrics Grid for Operations Teams */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
+            <div className="text-2xl font-bold text-gray-900">{result.complianceScore || 0}%</div>
+            <div className="text-sm text-gray-600 mt-1">Compliance Score</div>
+            <div className={cn("inline-block px-2 py-1 rounded-full text-xs font-medium border mt-2", badge.color)}>
+              {badge.label}
+            </div>
+          </div>
+          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
+            <div className="flex items-center justify-center mb-1">
+              <XCircle className="w-5 h-5 text-red-600 mr-1" />
+              <div className="text-2xl font-bold text-gray-900">{result.errors.length}</div>
+            </div>
+            <div className="text-sm text-gray-600">Errors</div>
+          </div>
+          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
+            <div className="flex items-center justify-center mb-1">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 mr-1" />
+              <div className="text-2xl font-bold text-gray-900">{result.warnings?.length || 0}</div>
+            </div>
+            <div className="text-sm text-gray-600">Warnings</div>
+          </div>
+          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
+            <div className="flex items-center justify-center mb-1">
+              <Clock className="w-5 h-5 text-blue-600 mr-1" />
+              <div className="text-2xl font-bold text-gray-900">{result.processingTime || 0}</div>
+            </div>
+            <div className="text-sm text-gray-600">ms</div>
+          </div>
+        </div>
+
+        {/* Quick Actions for Common Issues */}
+        {!result.isValid && (
+          <div className="bg-white p-4 rounded-lg border border-gray-100">
+            <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+              <Lightbulb className="w-4 h-4 mr-2 text-yellow-600" />
+              Quick Fix Suggestions
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <a
+                href="/docs#common-errors"
+                className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Common Error Fixes</span>
+              </a>
+              <a
+                href="/samples"
+                className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                <Target className="w-4 h-4" />
+                <span>Generate Valid Sample</span>
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
       {/* Errors Section */}
       {result.errors.length > 0 && (
         <div className="card p-6">
